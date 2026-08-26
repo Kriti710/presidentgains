@@ -46,9 +46,13 @@ for (const t of ["tier1", "tier2", "tier3"]) {
 }
 for (const s of ["grass", "dirt", "brick", "qblock", "used", "coin", "goomba",
                  "egg", "milk", "pipe", "flag", "castle", "bush", "cloud",
-                 "head", "ishaan"]) {
+                 "head"]) {
   loadSprite(s, `assets/sprites/${s}.png`);
 }
+// Filename is versioned (not just "ishaan.png") because /assets/* is served
+// immutable + cached for a year — overwriting the same filename would leave
+// anyone with a cached copy stuck seeing the old photo until the cache expires.
+loadSprite("ishaan", "assets/sprites/ishaan-2.png");
 for (const s of ["jump", "coin", "power", "stomp", "hurt", "bump", "brick",
                  "1up", "die", "win"]) {
   loadSound(s, `assets/sounds/${s}.wav`);
@@ -236,7 +240,7 @@ scene("title", () => {
   // to everything else on any device, since KAPLAY letterboxes this whole
   // 1280x720 scene identically whether it's shown on a phone or a desktop.
   const ISHAAN_H = 232;
-  const ISHAAN_W = Math.round(ISHAAN_H * 1289 / 1122); // native aspect ratio of ishaan.png
+  const ISHAAN_W = Math.round(ISHAAN_H * 850 / 740); // native aspect ratio of ishaan-2.png
   add([
     sprite("ishaan", { width: ISHAAN_W, height: ISHAAN_H }),
     pos(width() / 2, 470), anchor("bot"), bob(4, 2.4),
