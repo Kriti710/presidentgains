@@ -56,8 +56,7 @@ for (const s of ["jump", "coin", "power", "stomp", "hurt", "bump", "brick",
 loadSound("bgm", "assets/sounds/bgm.mp3");
 
 /* --------------------------------------------------------------- constants */
-const WALK_SPEED = 290;
-const RUN_SPEED  = 440;
+const SPEED      = 440;
 const JUMP_FORCE = 1200;
 const GRAVITY    = 2900;
 
@@ -95,7 +94,7 @@ function writeSave(patch) {
 
 /* ------------------------------------------------------------------- input */
 /* Touch buttons feed the same state the keyboard does. */
-const touch = { left: false, right: false, space: false, shift: false };
+const touch = { left: false, right: false, space: false };
 let touchJumpEdge = false;
 
 if (matchMedia("(pointer: coarse)").matches) document.body.classList.add("touch");
@@ -116,7 +115,6 @@ for (const btn of document.querySelectorAll("#touch button")) {
 
 const heldLeft  = () => isKeyDown("left")  || isKeyDown("a") || touch.left;
 const heldRight = () => isKeyDown("right") || isKeyDown("d") || touch.right;
-const heldRun   = () => isKeyDown("shift") || touch.shift;
 const heldJump  = () => isKeyDown("space") || isKeyDown("up") || isKeyDown("w") || touch.space;
 function jumpPressed() {
   if (touchJumpEdge) { touchJumpEdge = false; return true; }
@@ -244,7 +242,7 @@ scene("title", () => {
   hint.onUpdate(() => { hint.opacity = 0.55 + Math.sin(time() * 5) * 0.45; });
 
   add([text(
-        "←/→ or A/D  move    SPACE / ↑  jump    SHIFT  run    M  mute    R  restart",
+        "←/→ or A/D  move    SPACE / ↑  jump    M  mute    R  restart",
         { size: 19, font: "monospace", align: "center" }),
       pos(width() / 2, 584), anchor("center"), color(220, 235, 255), opacity(0.85)]);
 
@@ -294,6 +292,15 @@ scene("game", (carry) => {
   }
   // fill under the level so no sky shows below the dirt
   add([rect(LEVEL_W, 600), pos(0, LEVEL_H), color(96, 58, 18), z(-90)]);
+
+  // campaign messaging, pinned high in the sky so it stays visible the whole
+  // run — z sits above scenery (mountains/clouds/etc. all render below the
+  // HUD's z(99-100)) but below the HUD itself, so nothing ever paints over it
+  add([
+    ...textShadow("VOTE ISHAAN FOR PRESIDENT", { size: 26, font: "monospace" }),
+    pos(width() / 2, 110), anchor("center"), fixed(), z(90), opacity(0.85),
+    color(255, 214, 80),
+  ]);
 
   /* ------------------------------------------------------------- level */
   /* The map is ~3000 tiles. One game object per tile costs about 5fps, because
@@ -471,10 +478,9 @@ scene("game", (carry) => {
     }
 
     if (!state.finished) {
-      const speed = heldRun() ? RUN_SPEED : WALK_SPEED;
       let moving = false;
-      if (heldLeft())  { player.move(-speed, 0); facing = -1; moving = true; }
-      if (heldRight()) { player.move(speed, 0);  facing = 1;  moving = true; }
+      if (heldLeft())  { player.move(-SPEED, 0); facing = -1; moving = true; }
+      if (heldRight()) { player.move(SPEED, 0);  facing = 1;  moving = true; }
       player.flipX = facing < 0;
 
       const grounded = player.isGrounded();

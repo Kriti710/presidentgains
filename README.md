@@ -34,7 +34,6 @@ JavaScript, and what you edit is what runs.
 | --- | --- |
 | Move | `←` `→` or `A` `D` |
 | Jump | `Space`, `↑`, or `W` — hold for a higher jump |
-| Run | `Shift` |
 | Mute | `M` |
 | Back to title | `R` |
 | Show hitboxes | `F1` |
@@ -105,8 +104,7 @@ To add a second level, copy `LEVEL` into a `LEVEL2`, and pass it into the
 The numbers that matter are all at the top of `src/main.js`:
 
 ```js
-const WALK_SPEED = 290;
-const RUN_SPEED  = 440;
+const SPEED      = 440;
 const JUMP_FORCE = 1200;   // higher = floatier and taller
 const GRAVITY    = 2900;   // higher = snappier and shorter
 const START_TIME = 320;
