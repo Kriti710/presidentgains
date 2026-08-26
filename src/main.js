@@ -387,7 +387,7 @@ scene("game", (carry) => {
         add([sprite("brick"), pos(x, y), area(), body({ isStatic: true }), cull(),
              "solid", "bumpable", "brick"]);
       } else if (ch === "?") {
-        const gives = (prizeIndex++ % 3 === 0) ? "power" : "coin";
+        const gives = (prizeIndex++ % 3 !== 0) ? "power" : "coin";
         add([sprite("qblock"), pos(x, y), area(), body({ isStatic: true }), cull(),
              "solid", "bumpable", "prize", { gives, spent: false }]);
       } else if (ch === "c") {
