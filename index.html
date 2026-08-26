@@ -55,6 +55,25 @@
 
   <div id="rotate">Turn your phone sideways<br>to play President Gains</div>
 
+  <script>
+    /* Some embeddings (the Claude artifact viewer, and any iframe with a
+       restrictive permissions policy) block the Gamepad API. KAPLAY polls
+       navigator.getGamepads() every frame, so a blocked call throws on the
+       first frame and the game never starts. Report "no gamepads" instead.
+       Real controllers still work wherever the policy allows them. */
+    (function () {
+      var orig = null;
+      try { orig = navigator.getGamepads && navigator.getGamepads.bind(navigator); } catch (e) {}
+      var safe = function () {
+        try { return orig ? (orig() || []) : []; } catch (e) { return []; }
+      };
+      var desc = { value: safe, configurable: true, writable: true };
+      try { Object.defineProperty(navigator, "getGamepads", desc); }
+      catch (e) {
+        try { Object.defineProperty(Navigator.prototype, "getGamepads", desc); } catch (e2) {}
+      }
+    })();
+  </script>
   <script src="vendor/kaplay.js"></script>
   <script src="src/level.js"></script>
   <script src="src/main.js"></script>
