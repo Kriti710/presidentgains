@@ -263,6 +263,7 @@ scene("game", (carry) => {
     coins: carry?.coins ?? 0,
     timeLeft: carry?.timeLeft ?? START_TIME,
     tier: 1,
+    milkFed: false,
     invuln: 0,
     finished: false,
     dead: false,
@@ -426,6 +427,11 @@ scene("game", (carry) => {
     player.play(name);
   }
 
+  // Tier 2's name depends on whether egg or milk got the player there.
+  function tierLabel(n) {
+    return n === 2 ? (state.milkFed ? "MILK-FED" : "EGG-FED") : TIER_NAME[n];
+  }
+
   function setTier(n, quiet) {
     const clamped = Math.max(1, Math.min(TIERS, n));
     if (clamped === state.tier) return;
@@ -433,7 +439,7 @@ scene("game", (carry) => {
     player.use(charSprite(clamped, { anim: animName }));
     if (!quiet) {
       const label = add([
-        text(TIER_NAME[clamped], { size: 24, font: "monospace" }),
+        text(tierLabel(clamped), { size: 24, font: "monospace" }),
         pos(player.pos.x, player.pos.y - HB_H - 20), anchor("center"),
         color(255, 214, 80), outline(3, rgb(20, 26, 40)), z(20), opacity(1),
       ]);
@@ -610,6 +616,7 @@ scene("game", (carry) => {
     destroy(item);
     sfx("power", { volume: 0.55 });
     state.score += 1000;
+    if (state.tier === 1) state.milkFed = item.kind === "milk";
     setTier(state.tier + 1);
   });
 
@@ -750,7 +757,7 @@ scene("game", (carry) => {
     coinTxt.text  = "x" + String(state.coins).padStart(2, "0");
     scoreTxt.text = "SCORE " + String(state.score).padStart(6, "0");
     timeTxt.text  = "TIME " + String(Math.max(0, Math.ceil(state.timeLeft))).padStart(3, "0");
-    tierTxt.text  = TIER_NAME[state.tier];
+    tierTxt.text  = tierLabel(state.tier);
   });
 
   onKeyPress("r", () => { stopMusic(); go("title"); });
