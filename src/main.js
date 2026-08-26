@@ -46,7 +46,7 @@ for (const t of ["tier1", "tier2", "tier3"]) {
 }
 for (const s of ["grass", "dirt", "brick", "qblock", "used", "coin", "goomba",
                  "egg", "milk", "pipe", "flag", "castle", "bush", "cloud",
-                 "head"]) {
+                 "head", "ishaan"]) {
   loadSprite(s, `assets/sprites/${s}.png`);
 }
 for (const s of ["jump", "coin", "power", "stomp", "hurt", "bump", "brick",
@@ -231,11 +231,19 @@ scene("title", () => {
   add([...textShadow("GAINS", { size: 128, font: "monospace" }),
        pos(width() / 2, 232), anchor("center"), color(255, 214, 80)]);
 
-  const hero = add([charSprite(3, { anim: "idle" }), pos(width() / 2, 470), anchor("bot"), scale(1.5)]);
-  hero.onUpdate(() => { hero.scale.y = 1.5 + Math.sin(time() * 3) * 0.03; });
+  // the real candidate, front and center — flanked by the powerups that make
+  // him swole. Sized in pixels (not scale()) so it reads the same relative
+  // to everything else on any device, since KAPLAY letterboxes this whole
+  // 1280x720 scene identically whether it's shown on a phone or a desktop.
+  const ISHAAN_H = 232;
+  const ISHAAN_W = Math.round(ISHAAN_H * 919 / 800); // native aspect ratio of ishaan.png
+  add([
+    sprite("ishaan", { width: ISHAAN_W, height: ISHAAN_H }),
+    pos(width() / 2, 470), anchor("bot"), bob(4, 2.4),
+  ]);
 
-  add([sprite("egg"),  pos(width() / 2 - 170, 430), anchor("center"), scale(1.4)]);
-  add([sprite("milk"), pos(width() / 2 + 170, 430), anchor("center"), scale(1.4)]);
+  add([sprite("egg"),  pos(width() / 2 - 200, 430), anchor("center"), scale(1.4)]);
+  add([sprite("milk"), pos(width() / 2 + 200, 430), anchor("center"), scale(1.4)]);
 
   const hint = add([...textShadow("PRESS SPACE TO START", { size: 30, font: "monospace" }),
                     pos(width() / 2, 528), anchor("center")]);
