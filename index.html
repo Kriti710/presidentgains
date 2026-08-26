@@ -29,54 +29,58 @@
   canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
 
   /* ---- touch controls: a real row below the game, only on touch devices ----
-     Chunky, high-contrast, slightly 3D buttons (raised bevel + a drop "step"
-     shadow that flattens on press) in the spirit of a classic game-pad,
-     rather than flat translucent overlay buttons. */
+     Flat, hard-cornered, 8-bit-controller-style buttons: solid colors, thick
+     black borders, and a crisp zero-blur "step" shadow (rather than a soft
+     glow) that the button drops into on press — the classic pixel-art UI
+     button look, not a smooth modern 3D bevel. */
   #touch {
     display: none; flex: 0 0 auto; width: 100%;
     align-items: center; justify-content: space-between;
     gap: clamp(10px, 4vw, 24px);
-    /* extra bottom padding lifts the buttons up off the very edge of the
-       screen instead of sitting flush against it */
-    padding: 10px max(16px, env(safe-area-inset-right))
-             max(30px, calc(env(safe-area-inset-bottom) + 20px))
+    /* light top padding + heavy bottom padding pushes the buttons toward the
+       top of this strip — closer to the game, further from the screen edge —
+       while the whole row still stays fully below the game, never over it */
+    padding: 4px max(16px, env(safe-area-inset-right))
+             max(42px, calc(env(safe-area-inset-bottom) + 30px))
              max(16px, env(safe-area-inset-left));
     background: #0b0f18; border-top: 1px solid rgba(255,255,255,.08);
   }
   body.touch #touch { display: flex; }
   #touch .pad { display: flex; }
   #touch button {
-    border: 3px solid #17171b; color: #f4f4f4;
+    border: 4px solid #0a0a0c; border-radius: 0; color: #f0f0f0;
     font: 800 clamp(18px, 5.5vw, 30px)/1 ui-monospace, monospace;
     touch-action: none; transition: transform .04s, box-shadow .04s;
   }
-  #touch button:active { transform: translateY(4px); }
+  #touch button:active { transform: translate(4px, 4px); }
 
-  /* d-pad: two buttons visually fused into one dark slab, like a classic
-     directional pad, with a light bevel and a hard "step" shadow for depth */
+  /* d-pad: two buttons fused into one flat charcoal slab — square corners,
+     a hard pixel-style offset shadow, no gradients */
   .pad.left {
-    background: linear-gradient(180deg, #4b4b55, #26262c);
-    border: 3px solid #17171b; border-radius: 16px;
-    box-shadow: 0 5px 0 #0c0c0f, 0 7px 12px rgba(0,0,0,.4), inset 0 2px 2px rgba(255,255,255,.15);
+    background: #34343c; border: 4px solid #0a0a0c;
+    box-shadow: 5px 5px 0 #0a0a0c, inset -3px -3px 0 rgba(0,0,0,.4), inset 3px 3px 0 rgba(255,255,255,.12);
   }
-  .pad.left:active { box-shadow: 0 1px 0 #0c0c0f, inset 0 2px 2px rgba(255,255,255,.1); }
+  .pad.left:active { box-shadow: inset -3px -3px 0 rgba(0,0,0,.4), inset 3px 3px 0 rgba(255,255,255,.12); transform: translate(5px, 5px); }
   .pad.left button {
     width: clamp(58px, 16vw, 86px); height: clamp(58px, 16vw, 86px);
     border: none; background: transparent;
     box-shadow: none; transform: none !important;
   }
-  .pad.left button:first-child { border-right: 2px solid rgba(0,0,0,.35); }
-  .pad.left button:active { background: rgba(255,255,255,.12); }
+  .pad.left button:first-child { border-right: 3px solid #0a0a0c; }
+  .pad.left button:active { background: rgba(255,255,255,.14); }
 
-  /* jump: a big glossy red action button, like a classic controller's A button */
+  /* jump: a flat red action button, like a classic controller's A button,
+     square-cornered and pixel-shadowed to match the d-pad */
   #touch .jump {
     width: clamp(80px, 22vw, 122px); height: clamp(80px, 22vw, 122px);
-    border-radius: 50%; border: 3px solid #6e0e0e;
-    background: radial-gradient(circle at 35% 28%, #ff8073, #dd2020 58%, #a10f0f 100%);
-    box-shadow: 0 6px 0 #7a0f0f, 0 9px 16px rgba(0,0,0,.45), inset 0 2px 3px rgba(255,255,255,.35);
+    border-radius: 0; border: 4px solid #0a0a0c; background: #d5281f;
+    box-shadow: 6px 6px 0 #0a0a0c, inset -3px -3px 0 rgba(0,0,0,.3), inset 3px 3px 0 rgba(255,255,255,.25);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   }
-  #touch .jump:active { box-shadow: 0 1px 0 #7a0f0f, inset 0 2px 3px rgba(255,255,255,.2); }
+  #touch .jump:active {
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,.3), inset 3px 3px 0 rgba(255,255,255,.25);
+    transform: translate(6px, 6px);
+  }
   #touch .jump .jlabel { font-size: clamp(14px, 4vw, 18px); font-weight: 800; letter-spacing: .5px; }
   #touch .jump .jhint {
     font-size: clamp(7.5px, 2.1vw, 9.5px); font-weight: 700; letter-spacing: .2px;
