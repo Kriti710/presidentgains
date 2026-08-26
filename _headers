@@ -1,0 +1,20 @@
+# Cloudflare Pages headers.
+# Assets are content-addressed by name and change rarely -> cache hard.
+# index.html and the game code must revalidate, so a redeploy reaches players
+# immediately instead of serving them a stale cached game.
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/src/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
