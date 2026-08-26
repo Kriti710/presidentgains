@@ -235,15 +235,15 @@ scene("title", () => {
   // him swole. Sized in pixels (not scale()) so it reads the same relative
   // to everything else on any device, since KAPLAY letterboxes this whole
   // 1280x720 scene identically whether it's shown on a phone or a desktop.
-  const ISHAAN_H = 232;
-  const ISHAAN_W = Math.round(ISHAAN_H * 741 / 760); // native aspect ratio of ishaan.png
+  const ISHAAN_W = 400;
+  const ISHAAN_H = Math.round(ISHAAN_W * 380 / 741); // native aspect ratio of ishaan.png (upper-half crop)
   add([
     sprite("ishaan", { width: ISHAAN_W, height: ISHAAN_H }),
     pos(width() / 2, 470), anchor("bot"), bob(4, 2.4),
   ]);
 
-  add([sprite("egg"),  pos(width() / 2 - 200, 430), anchor("center"), scale(1.4)]);
-  add([sprite("milk"), pos(width() / 2 + 200, 430), anchor("center"), scale(1.4)]);
+  add([sprite("egg"),  pos(width() / 2 - 255, 430), anchor("center"), scale(1.4)]);
+  add([sprite("milk"), pos(width() / 2 + 255, 430), anchor("center"), scale(1.4)]);
 
   const hint = add([...textShadow("PRESS SPACE TO START", { size: 30, font: "monospace" }),
                     pos(width() / 2, 528), anchor("center")]);

@@ -30,16 +30,20 @@
     -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
     touch-action: none; overscroll-behavior: none;
   }
-  /* #app stacks the game and the control bar top-to-bottom, so on a portrait
-     phone the game keeps its 1280x720 (16:9) shape — letterboxed by KAPLAY
-     inside #wrap — while the controls live in their own reserved strip below
-     it instead of floating on top of the play area. */
-  #app { position: fixed; inset: 0; display: flex; flex-direction: column; touch-action: none; }
-  /* KAPLAY stretches the canvas to exactly 100%/100% of this box itself (it
-     letterboxes the 16:9 game internally), so #wrap just needs to be a plain,
-     definitely-sized box — a grid/flex parent with center-alignment made the
-     canvas's own 100% resolve against a stale size instead of this box. */
-  #wrap { flex: 1 1 auto; min-height: 0; min-width: 0; position: relative; overflow: hidden; touch-action: none; }
+  /* #app stacks the game and the control bar top-to-bottom, bottom-anchored
+     (justify-content: flex-end) so the two sit flush against each other —
+     any leftover space (a portrait phone is much taller than 16:9) collects
+     above the game instead of as a gap between the game and the buttons. */
+  #app {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    justify-content: flex-end; align-items: center; touch-action: none;
+  }
+  /* #wrap is sized in JS (see the layout script below) to exactly the 16:9
+     box that fits the available space, instead of stretching to fill it —
+     that stretching is what let KAPLAY's own internal letterboxing eat a
+     huge chunk of a tall phone screen as dead space between game and
+     buttons. width/height here are just a pre-JS fallback. */
+  #wrap { width: 100%; aspect-ratio: 16 / 9; max-height: 100%; position: relative; overflow: hidden; touch-action: none; }
   canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
 
   /* ---- touch controls: a real row below the game, only on touch devices ----
@@ -157,6 +161,43 @@
       document.addEventListener("touchend", kill, { passive: false });
       document.addEventListener("dblclick", function (e) { e.preventDefault(); }, { passive: false });
       document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
+    })();
+
+    /* Size #wrap to exactly the 16:9 box that fits the space above the
+       control bar, instead of letting it stretch to fill that whole space
+       and leaving KAPLAY's own internal letterboxing to eat the rest as
+       dead space — a portrait phone is much taller than 16:9, so that dead
+       space could be huge. Re-measured on resize/orientation change and
+       whenever the control bar's own size changes (it's 0-height until the
+       "touch" class is added, and its height also varies with the safe-area
+       insets). */
+    (function () {
+      var wrap = document.getElementById("wrap");
+      var touchBar = document.getElementById("touch");
+      function layout() {
+        var totalH = window.innerHeight;
+        var totalW = window.innerWidth;
+        var barH = touchBar.offsetHeight;
+        var availH = Math.max(0, totalH - barH);
+        var w = totalW, h = w * 9 / 16;
+        if (h > availH) { h = availH; w = h * 16 / 9; }
+        wrap.style.width = w + "px";
+        wrap.style.height = h + "px";
+      }
+      layout();
+      window.addEventListener("resize", layout);
+      window.addEventListener("orientationchange", layout);
+      if (window.ResizeObserver) new ResizeObserver(layout).observe(touchBar);
+      // Belt and suspenders: main.js adds body.classList "touch" (which is
+      // what actually flips the control bar from display:none to a real
+      // height) slightly after this script runs. That's exactly the kind of
+      // 0-height-to-real-height transition ResizeObserver is supposed to
+      // catch, but it isn't reliable for this specific case in testing —
+      // watch the class attribute directly instead, since that's the real
+      // trigger, not just a proxy for it.
+      if (window.MutationObserver) {
+        new MutationObserver(layout).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+      }
     })();
   </script>
   <script src="vendor/kaplay.js"></script>
