@@ -14,7 +14,7 @@ kaplay({
   crisp: true,
   canvas: document.getElementById("game"),
   global: true,
-  debug: true,
+  debug: false,
   logMax: 4,
 });
 
@@ -25,6 +25,16 @@ const CHAR_ANIMS = {
   jump: 4,
   squash: 5,
 };
+
+// Source art for the character sheets and HUD head icon is stored at 4x
+// resolution (supersampled + sharpened) so it stays smooth under the
+// canvas's pixelated/nearest-neighbor scaling instead of looking blocky.
+// These are the original, on-screen frame/icon sizes to render at.
+const CHAR_W = 63, CHAR_H = 106;
+const HEAD_W = 30, HEAD_H = 35;
+function charSprite(tier, opt) {
+  return sprite(`tier${tier}`, { width: CHAR_W, height: CHAR_H, ...opt });
+}
 
 for (const t of ["tier1", "tier2", "tier3"]) {
   loadSprite(t, `assets/sprites/${t}.png`, { sliceX: 6, anims: CHAR_ANIMS });
@@ -218,7 +228,7 @@ scene("title", () => {
   add([...textShadow("GAINS", { size: 128, font: "monospace" }),
        pos(width() / 2, 232), anchor("center"), color(255, 214, 80)]);
 
-  const hero = add([sprite("tier3", { anim: "idle" }), pos(width() / 2, 470), anchor("bot"), scale(1.5)]);
+  const hero = add([charSprite(3, { anim: "idle" }), pos(width() / 2, 470), anchor("bot"), scale(1.5)]);
   hero.onUpdate(() => { hero.scale.y = 1.5 + Math.sin(time() * 3) * 0.03; });
 
   add([sprite("egg"),  pos(width() / 2 - 170, 430), anchor("center"), scale(1.4)]);
@@ -235,7 +245,7 @@ scene("title", () => {
 
   const line = save.clears > 0
     ? `BEST ${save.hiscore}   FASTEST ${START_TIME - save.bestTime}s   CLEARED ${save.clears}x`
-    : "EGGS AND MILK MAKE YOU SWOLE";
+    : "EGGS AND MILK MAKE YOU STRONG";
   add([text(line, { size: 21, font: "monospace" }), pos(width() / 2, 624),
        anchor("center"), color(255, 214, 80)]);
 
@@ -287,6 +297,7 @@ scene("game", (carry) => {
      actually DO something — bricks, prize blocks, coins, enemies — stay
      individual. ~570 objects becomes ~150. */
   let prizeIndex = 0;
+  let firstPowerGiven = false;
   let flagPole = null;
   let castleX = LEVEL_W - 300;
 
@@ -396,7 +407,7 @@ scene("game", (carry) => {
 
   /* ------------------------------------------------------------ player */
   const player = add([
-    sprite("tier1", { anim: "idle" }),
+    charSprite(1, { anim: "idle" }),
     pos(3 * TILE, (LEVEL.length - 3) * TILE),
     anchor("bot"),
     // KAPLAY anchors a custom shape itself (using the shape's own size), so
@@ -419,7 +430,7 @@ scene("game", (carry) => {
     const clamped = Math.max(1, Math.min(TIERS, n));
     if (clamped === state.tier) return;
     state.tier = clamped;
-    player.use(sprite(`tier${clamped}`, { anim: animName }));
+    player.use(charSprite(clamped, { anim: animName }));
     if (!quiet) {
       const label = add([
         text(TIER_NAME[clamped], { size: 24, font: "monospace" }),
@@ -524,7 +535,8 @@ scene("game", (carry) => {
   }
 
   function spawnPowerup(block) {
-    const kind = state.tier === 1 ? "egg" : "milk";
+    const kind = !firstPowerGiven ? "milk" : (state.tier === 1 ? "egg" : "milk");
+    firstPowerGiven = true;
     const item = add([
       sprite(kind), pos(block.pos.x + TILE / 2, block.pos.y - 4), anchor("bot"),
       area({ scale: vec2(0.85, 0.85) }), body(), z(4),
@@ -707,13 +719,22 @@ scene("game", (carry) => {
   });
 
   /* ---------------------------------------------------------------- HUD */
+  // A soft gradient bar under the HUD keeps it legible over any sky color
+  // or busy background art, without boxing it in with a hard panel edge.
+  const HUD_H = 84, HUD_BANDS = 8;
+  for (let i = 0; i < HUD_BANDS; i++) {
+    const bandH = HUD_H / HUD_BANDS;
+    add([rect(width(), bandH + 1), pos(0, i * bandH), color(8, 12, 20),
+         opacity(0.5 * (1 - i / HUD_BANDS)), fixed(), z(99)]);
+  }
+
   const hudStyle = { size: 26, font: "monospace" };
   const mk = (x, y, str) => add([
     text(str, hudStyle), pos(x, y), fixed(), z(100),
     color(255, 255, 255), outline(4, rgb(20, 26, 40)),
   ]);
 
-  add([sprite("head"), pos(28, 22), fixed(), z(100), scale(0.9)]);
+  add([sprite("head", { width: HEAD_W, height: HEAD_H }), pos(28, 22), fixed(), z(100), scale(0.9)]);
   const livesTxt = mk(64, 26, "x3");
   add([sprite("coin"), pos(190, 22), fixed(), z(100)]);
   const coinTxt  = mk(224, 26, "x00");
@@ -748,13 +769,15 @@ scene("lose", ({ score, coins }) => {
   stopMusic();
   resetCamera();
   add([rect(width(), height()), color(16, 22, 36), fixed()]);
-  add([...textShadow("SKIPPED LEG DAY", { size: 68, font: "monospace" }),
-       pos(width() / 2, 200), anchor("center")]);
-  add([sprite("tier1"), pos(width() / 2, 400), anchor("bot"), scale(1.4)]);
+  add([...textShadow("VOTE ISHAAN", { size: 54, font: "monospace" }),
+       pos(width() / 2, 140), anchor("center")]);
+  add([...textShadow("FOR PRESIDENT", { size: 74, font: "monospace" }),
+       pos(width() / 2, 212), anchor("center"), color(255, 214, 80)]);
+  add([charSprite(1), pos(width() / 2, 430), anchor("bot"), scale(1.4)]);
   add([text(`SCORE ${score}    COINS ${coins}`, { size: 30, font: "monospace" }),
-       pos(width() / 2, 452), anchor("center"), color(255, 214, 80)]);
+       pos(width() / 2, 480), anchor("center"), color(255, 214, 80)]);
   const hint = add([text("PRESS SPACE", { size: 26, font: "monospace" }),
-                    pos(width() / 2, 528), anchor("center"), color(230, 240, 255)]);
+                    pos(width() / 2, 540), anchor("center"), color(230, 240, 255)]);
   hint.onUpdate(() => { hint.opacity = 0.5 + Math.sin(time() * 5) * 0.5; });
   onUpdate(() => { if (anyStart()) go("title"); });
 });
@@ -764,11 +787,11 @@ scene("win", ({ score, coins, bonus, timeLeft }) => {
   resetCamera();
   const save = loadSave();
   add([rect(width(), height()), color(16, 22, 36), fixed()]);
-  add([...textShadow("BEAST MODE", { size: 58, font: "monospace" }),
-       pos(width() / 2, 118), anchor("center")]);
-  add([...textShadow("ACHIEVED", { size: 86, font: "monospace" }),
-       pos(width() / 2, 196), anchor("center"), color(255, 214, 80)]);
-  add([sprite("tier3"), pos(width() / 2, 430), anchor("bot"), scale(1.5)]);
+  add([...textShadow("VOTE ISHAAN", { size: 58, font: "monospace" }),
+       pos(width() / 2, 100), anchor("center")]);
+  add([...textShadow("FOR PRESIDENT", { size: 86, font: "monospace" }),
+       pos(width() / 2, 178), anchor("center"), color(255, 214, 80)]);
+  add([charSprite(3), pos(width() / 2, 430), anchor("bot"), scale(1.5)]);
 
   const rows = [
     `COINS        ${coins}`,
@@ -781,6 +804,14 @@ scene("win", ({ score, coins, bonus, timeLeft }) => {
     pos(width() / 2, 466 + i * 34), anchor("center"),
     color(i === 2 ? 255 : 220, i === 2 ? 214 : 235, i === 2 ? 80 : 255),
   ]));
+
+  // persist() already folded this run's score into save.hiscore before we
+  // got here, so hitting the current best means this run just set it.
+  if (score >= save.hiscore && score > 0) {
+    const badge = add([...textShadow("NEW BEST!", { size: 22, font: "monospace" }),
+                        pos(width() / 2, 598), anchor("center"), color(120, 230, 140)]);
+    badge.onUpdate(() => { badge.scale = vec2(1 + Math.sin(time() * 6) * 0.06); });
+  }
 
   const hint = add([text("PRESS SPACE", { size: 24, font: "monospace" }),
                     pos(width() / 2, 626), anchor("center"), color(230, 240, 255)]);
