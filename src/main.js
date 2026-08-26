@@ -295,11 +295,13 @@ scene("game", (carry) => {
 
   // campaign messaging, pinned high in the sky so it stays visible the whole
   // run — z sits above scenery (mountains/clouds/etc. all render below the
-  // HUD's z(99-100)) but below the HUD itself, so nothing ever paints over it
+  // HUD's z(99-100)) but below the HUD itself, so nothing ever paints over it.
+  // Bold red on a heavy white outline reads as a campaign banner and pops
+  // hard against the blue sky, unlike the softer yellow used elsewhere.
   add([
-    ...textShadow("VOTE ISHAAN FOR PRESIDENT", { size: 26, font: "monospace" }),
-    pos(width() / 2, 110), anchor("center"), fixed(), z(90), opacity(0.85),
-    color(255, 214, 80),
+    ...textShadow("VOTE ISHAAN FOR PRESIDENT", { size: 38, font: "monospace" }),
+    pos(width() / 2, 122), anchor("center"), fixed(), z(90),
+    color(230, 30, 30), outline(6, rgb(255, 255, 255)),
   ]);
 
   /* ------------------------------------------------------------- level */
