@@ -236,7 +236,7 @@ scene("title", () => {
   // to everything else on any device, since KAPLAY letterboxes this whole
   // 1280x720 scene identically whether it's shown on a phone or a desktop.
   const ISHAAN_H = 232;
-  const ISHAAN_W = Math.round(ISHAAN_H * 919 / 800); // native aspect ratio of ishaan.png
+  const ISHAAN_W = Math.round(ISHAAN_H * 741 / 760); // native aspect ratio of ishaan.png
   add([
     sprite("ishaan", { width: ISHAAN_W, height: ISHAAN_H }),
     pos(width() / 2, 470), anchor("bot"), bob(4, 2.4),
