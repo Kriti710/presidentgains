@@ -298,10 +298,13 @@ scene("game", (carry) => {
   // HUD's z(99-100)) but below the HUD itself, so nothing ever paints over it.
   // Bold red on a heavy white outline reads as a campaign banner and pops
   // hard against the blue sky, unlike the softer yellow used elsewhere.
+  // KAPLAY's text has no real font-weight, so — same as every other headline
+  // in this game ("GAINS" on the title screen, etc.) — boldness comes purely
+  // from a thick outline; this one's pushed even heavier than those.
   add([
     ...textShadow("VOTE ISHAAN FOR PRESIDENT", { size: 38, font: "monospace" }),
     pos(width() / 2, 122), anchor("center"), fixed(), z(90),
-    color(230, 30, 30), outline(6, rgb(255, 255, 255)),
+    color(230, 30, 30), outline(10, rgb(255, 255, 255)),
   ]);
 
   /* ------------------------------------------------------------- level */
