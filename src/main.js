@@ -12,6 +12,11 @@ kaplay({
   letterbox: true,
   background: [14, 20, 32],
   crisp: true,
+  // Render at the screen's actual pixel density (capped at 2x — beyond that
+  // costs fill-rate for no visible gain) instead of KAPLAY's 1x default, so
+  // the character sprite isn't drawn soft and then blown up blocky on
+  // retina/high-DPI phone screens.
+  pixelDensity: Math.min(window.devicePixelRatio || 1, 2),
   canvas: document.getElementById("game"),
   global: true,
   debug: false,
@@ -21,7 +26,7 @@ kaplay({
 /* ------------------------------------------------------------------ assets */
 const CHAR_ANIMS = {
   idle: 0,
-  walk: { frames: [1, 2, 3, 2], loop: true, speed: 11 },
+  walk: { frames: [1, 2, 3, 2], loop: true, speed: 16 },
   jump: 4,
   squash: 5,
 };

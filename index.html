@@ -14,9 +14,10 @@
     height: 100%; background: #0e1420; overflow: hidden;
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
     -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+    touch-action: none; overscroll-behavior: none;
   }
-  #wrap { position: fixed; inset: 0; display: grid; place-items: center; }
-  canvas { display: block; max-width: 100%; max-height: 100%; image-rendering: pixelated; }
+  #wrap { position: fixed; inset: 0; display: grid; place-items: center; touch-action: none; }
+  canvas { display: block; max-width: 100%; max-height: 100%; image-rendering: pixelated; touch-action: none; }
 
   /* ---- touch controls (only shown on touch devices) ---- */
   #touch { position: fixed; inset: 0; display: none; pointer-events: none; z-index: 5; }
@@ -72,6 +73,25 @@
       catch (e) {
         try { Object.defineProperty(Navigator.prototype, "getGamepads", desc); } catch (e2) {}
       }
+    })();
+
+    /* `touch-action: none` covers most browsers, but a double-tap (or, on
+       desktop, a double-click) can still trigger native zoom on some mobile
+       Safari / older Android builds. Block it explicitly: a second tap/click
+       landing within 350ms of the last one is swallowed, and pinch-zoom
+       gesture events (Safari-only) are blocked outright. Buttons and links
+       still work fine — this only stops the SECOND event of a fast double,
+       not taps in general. */
+    (function () {
+      var lastT = 0;
+      var kill = function (e) {
+        var now = Date.now();
+        if (now - lastT < 350) e.preventDefault();
+        lastT = now;
+      };
+      document.addEventListener("touchend", kill, { passive: false });
+      document.addEventListener("dblclick", function (e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
     })();
   </script>
   <script src="vendor/kaplay.js"></script>
